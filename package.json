@@ -4,7 +4,7 @@
   "description": "a kanban task management api",
   "main": "index.js",
   "scripts": {
-   "start": "nodemon app.js"
+   "start": "node app.js"
   },
   "author": "Plut0r",
   "license": "ISC",
