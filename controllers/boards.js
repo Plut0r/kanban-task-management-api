@@ -53,31 +53,52 @@ const getAllBoards = async (req, res) => {
 const updateBoard = async (req, res) => {
     const { user: { userId }, params: { id: boardId }, body: { name, columns } } = req;
     if (!name || !columns) {
-        throw new BadRequestError('Please provide name and columns')
-    }
-    if (!Array.isArray(columns) || columns.every(item => typeof item !== 'object')) {
-        throw new BadRequestError('Please provide columns as an array of objects')
+        throw new BadRequestError('Please provide name and columns');
     }
 
-    const board = await Board.findOne({ _id: boardId, createdBy: userId }).populate('columns')
+    if (!Array.isArray(columns)) {
+        throw new BadRequestError('Please provide columns as an array');
+    }
+
+    if (columns.length !== 0 && columns.every(item => typeof item !== 'object')) {
+        throw new BadRequestError('Please provide columns as an array of objects');
+    }
+
+    const board = await Board.findOne({ _id: boardId, createdBy: userId }).populate('columns');
     if (!board) {
-        throw new NotFoundError(`No board with id ${boardId}`)
+        throw new NotFoundError(`No board with id ${boardId}`);
     }
 
     board.name = name;
-    await board.save()
+    await board.save();
 
+    // Create a set of column IDs from the request body
+    const columnIdsFromRequest = new Set(columns.map(col => col.id).filter(id => id));
+
+    // Delete columns that are present in the board but not in the request body
+    for (let i = 0; i < board.columns.length; i++) {
+        const column = board.columns[i];
+        if (!columnIdsFromRequest.has(column._id.toString())) {
+            // Check if the column has tasks
+            const tasks = await Task.find({ columnId: column._id });
+            if (tasks.length > 0) {
+                throw new BadRequestError(`Column with id ${column._id} has tasks and cannot be deleted`);
+            }
+            await Column.deleteOne({ _id: column._id });
+            board.columns.pull(column._id);
+        }
+    }
+
+    // Update existing columns and add new ones
     for (let i = 0; i < columns.length; i++) {
         if (columns[i].id) {
-            const column = board.columns.find(col => col._id.toString() === columns[i].id)
-            // console.log(column)
+            const column = board.columns.find(col => col._id.toString() === columns[i].id);
             if (!column) {
-                throw new NotFoundError(`Column with id ${columns[i].id} not found on the board`)
+                throw new NotFoundError(`Column with id ${columns[i].id} not found on the board`);
             }
             column.name = columns[i].name;
-            await column.save()
+            await column.save();
         } else {
-            // console.log(true)
             const newColumn = new Column({
                 name: columns[i].name,
                 createdBy: req.user.userId,
@@ -87,14 +108,13 @@ const updateBoard = async (req, res) => {
         }
     }
 
-    await board.save()
+    await board.save();
 
     res.status(StatusCodes.OK).json({
-        boards: [
-            board
-        ]
-    })
-}
+        boards: [board]
+    });
+};
+
 
 const deleteBoard = async (req, res) => {
     const { user: { userId }, params: { id: boardId } } = req;
