@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 
+const testUser = require('../middleware/test-user');
+
 const {
     updateTask,
     updateTaskStatus,
