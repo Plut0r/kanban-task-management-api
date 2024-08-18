@@ -26,7 +26,7 @@ const errorHandlerMiddleware = require('./middleware/error-handler')
 app.set('trust proxy', 1)
 app.use(rateLimiter({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    limit: 30, // Limit each IP to 30 requests per `window` (here, per 15 minutes).
+    limit: 50, // Limit each IP to 30 requests per `window` (here, per 15 minutes).
     standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
     message: {

@@ -10,6 +10,7 @@ This is a RESTful API for managing a Kanban-style task management system. It all
 - **Tasks**: Add, update, move, and delete tasks.
 - **Subtasks**: Manage subtasks within tasks.
 - **Demo Mode**: Allows only read requests for demo purposes.
+- **Rate Limiting**: Limits to 50 requests per 15 minutes per IP address.
 
 ## Technologies Used
 
