@@ -45,5 +45,5 @@ For detailed API documentation, please visit [[postman-documentation](https://do
 
 ## Live Demo
 
-Check out the live frontend of the Kanban Task Management system here [live-frontend-link].
+Check out the live frontend of the Kanban Task Management system here [[live-frontend-link](https://kanban-task-management-frontend-phi.vercel.app/)].
 
